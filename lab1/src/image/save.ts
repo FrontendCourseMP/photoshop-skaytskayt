@@ -1,4 +1,5 @@
 import type { ImageDoc, SaveFormat } from './types';
+import { encodeGB7 } from './formats/gb7';
 
 export async function saveImage(doc: ImageDoc, format: SaveFormat): Promise<void> {
   const baseName = stripExt(doc.fileName ?? 'image');
@@ -9,7 +10,10 @@ export async function saveImage(doc: ImageDoc, format: SaveFormat): Promise<void
     return;
   }
 
-  throw new Error(`Формат ${format} пока не поддерживается`);
+  const withMask = format === 'gb7-mask';
+  const buffer = encodeGB7(doc, { withMask });
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  saveBlob(blob, `${baseName}.gb7`);
 }
 
 async function rasterToBlob(doc: ImageDoc, format: 'png' | 'jpg'): Promise<Blob> {

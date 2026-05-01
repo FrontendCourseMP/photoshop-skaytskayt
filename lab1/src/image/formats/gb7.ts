@@ -75,3 +75,45 @@ export function decodeGB7(buffer: ArrayBuffer, opts: DecodeGB7Options = {}): Ima
     fileName: opts.fileName,
   };
 }
+
+export interface EncodeGB7Options {
+  withMask?: boolean;
+}
+
+export function encodeGB7(doc: ImageDoc, opts: EncodeGB7Options = {}): ArrayBuffer {
+  const { width, height, pixels } = doc;
+  const withMask = opts.withMask === true;
+  const pixelCount = width * height;
+
+  const buffer = new ArrayBuffer(HEADER_SIZE + pixelCount);
+  const view = new DataView(buffer);
+
+  for (let i = 0; i < SIGNATURE.length; i++) {
+    view.setUint8(i, SIGNATURE[i]);
+  }
+  view.setUint8(4, VERSION);
+  view.setUint8(5, withMask ? FLAG_MASK_BIT : 0x00);
+  view.setUint16(6, width, false);
+  view.setUint16(8, height, false);
+  view.setUint16(10, 0x0000, false);
+
+  const src = pixels.data;
+  const dst = new Uint8Array(buffer, HEADER_SIZE, pixelCount);
+
+  for (let i = 0; i < pixelCount; i++) {
+    const o = i * 4;
+    const r = src[o];
+    const g = src[o + 1];
+    const b = src[o + 2];
+    const a = src[o + 3];
+
+    const gray8 = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+    const gray7 = Math.round((gray8 * 127) / 255) & PIXEL_GRAY_MASK;
+
+    let byte = gray7;
+    if (withMask && a >= 128) byte |= PIXEL_MASK_BIT;
+    dst[i] = byte;
+  }
+
+  return buffer;
+}

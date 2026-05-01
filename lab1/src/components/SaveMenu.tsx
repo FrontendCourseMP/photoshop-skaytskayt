@@ -15,6 +15,8 @@ interface Option {
 const OPTIONS: Option[] = [
   { format: 'png', label: 'PNG', hint: 'без потерь, прозрачность' },
   { format: 'jpg', label: 'JPG', hint: 'с потерями, без прозрачности' },
+  { format: 'gb7', label: 'GB7', hint: '7-bit grayscale' },
+  { format: 'gb7-mask', label: 'GB7 + маска', hint: '7-bit + 1-bit маска' },
 ];
 
 export function SaveMenu({ disabled, onPick }: SaveMenuProps) {
