@@ -26,7 +26,7 @@ export function Toolbar({ onFile, onSave, canSave }: ToolbarProps) {
         <input
           ref={inputRef}
           type="file"
-          accept="image/png,image/jpeg"
+          accept="image/png,image/jpeg,.gb7"
           onChange={handleChange}
           hidden
         />
