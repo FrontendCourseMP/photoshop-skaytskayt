@@ -1,28 +1,27 @@
 import { useEffect, useRef } from 'react';
-import type { ImageDoc } from '../image/types';
 
 interface CanvasViewProps {
-  doc: ImageDoc | null;
+  pixels: ImageData | null;
 }
 
-export function CanvasView({ doc }: CanvasViewProps) {
+export function CanvasView({ pixels }: CanvasViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !doc) return;
+    if (!canvas || !pixels) return;
 
-    canvas.width = doc.width;
-    canvas.height = doc.height;
+    canvas.width = pixels.width;
+    canvas.height = pixels.height;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.putImageData(doc.pixels, 0, 0);
-  }, [doc]);
+    ctx.putImageData(pixels, 0, 0);
+  }, [pixels]);
 
   return (
     <main className="workspace">
-      {doc === null ? (
+      {pixels === null ? (
         <div className="workspace__placeholder">
           Загрузите изображение, чтобы начать. Поддерживаются PNG, JPG и GB7.
         </div>

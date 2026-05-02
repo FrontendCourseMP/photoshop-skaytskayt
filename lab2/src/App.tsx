@@ -6,6 +6,7 @@ import { ChannelsPanel } from './components/ChannelsPanel';
 import { loadImageFile } from './image/load';
 import { saveImage } from './image/save';
 import { allKeys, detectChannelLayout } from './image/channels';
+import { applyChannelMask } from './image/applyChannelMask';
 import type { ChannelKey } from './image/channels';
 import type { ImageDoc, SaveFormat } from './image/types';
 
@@ -17,6 +18,11 @@ export default function App() {
   );
 
   const layout = useMemo(() => (doc ? detectChannelLayout(doc) : null), [doc]);
+
+  const displayPixels = useMemo(() => {
+    if (!doc || !layout) return null;
+    return applyChannelMask(doc.pixels, activeChannels, layout);
+  }, [doc, layout, activeChannels]);
 
   const handleFile = async (file: File) => {
     setError(null);
@@ -52,7 +58,7 @@ export default function App() {
   return (
     <div className="app">
       <Toolbar onFile={handleFile} onSave={handleSave} canSave={doc !== null} />
-      <CanvasView doc={doc} />
+      <CanvasView pixels={displayPixels} />
       <aside className="sidebar">
         <ChannelsPanel
           doc={doc}
