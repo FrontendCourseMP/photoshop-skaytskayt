@@ -3,12 +3,14 @@ import { Toolbar } from './components/Toolbar';
 import { CanvasView } from './components/CanvasView';
 import { StatusBar } from './components/StatusBar';
 import { ChannelsPanel } from './components/ChannelsPanel';
+import { PixelInfo } from './components/PixelInfo';
 import { loadImageFile } from './image/load';
 import { saveImage } from './image/save';
 import { allKeys, detectChannelLayout } from './image/channels';
 import { applyChannelMask } from './image/applyChannelMask';
 import type { ChannelKey } from './image/channels';
 import type { ImageDoc, SaveFormat } from './image/types';
+import type { PickedPixel, Tool } from './tools/types';
 
 export default function App() {
   const [doc, setDoc] = useState<ImageDoc | null>(null);
@@ -16,6 +18,8 @@ export default function App() {
   const [activeChannels, setActiveChannels] = useState<Set<ChannelKey>>(
     () => new Set<ChannelKey>(['gray', 'r', 'g', 'b', 'a']),
   );
+  const [tool, setTool] = useState<Tool>('none');
+  const [picked, setPicked] = useState<PickedPixel | null>(null);
 
   const layout = useMemo(() => (doc ? detectChannelLayout(doc) : null), [doc]);
 
@@ -26,6 +30,7 @@ export default function App() {
 
   const handleFile = async (file: File) => {
     setError(null);
+    setPicked(null);
     try {
       const next = await loadImageFile(file);
       setDoc(next);
@@ -55,10 +60,31 @@ export default function App() {
     });
   };
 
+  const handlePick = (x: number, y: number) => {
+    if (!doc) return;
+    const o = (y * doc.width + x) * 4;
+    const d = doc.pixels.data;
+    setPicked({
+      x,
+      y,
+      r: d[o],
+      g: d[o + 1],
+      b: d[o + 2],
+      a: d[o + 3],
+    });
+  };
+
   return (
     <div className="app">
-      <Toolbar onFile={handleFile} onSave={handleSave} canSave={doc !== null} />
-      <CanvasView pixels={displayPixels} />
+      <Toolbar
+        onFile={handleFile}
+        onSave={handleSave}
+        canSave={doc !== null}
+        tool={tool}
+        onToolChange={setTool}
+        toolsDisabled={doc === null}
+      />
+      <CanvasView pixels={displayPixels} tool={tool} onPick={handlePick} />
       <aside className="sidebar">
         <ChannelsPanel
           doc={doc}
@@ -66,6 +92,7 @@ export default function App() {
           active={activeChannels}
           onToggle={toggleChannel}
         />
+        <PixelInfo picked={picked} active={tool === 'eyedropper'} />
       </aside>
       <StatusBar doc={doc} error={error} />
     </div>
