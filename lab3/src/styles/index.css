@@ -460,3 +460,17 @@ body {
   accent-color: var(--accent);
   cursor: pointer;
 }
+
+.levels__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.levels__buttons {
+  display: flex;
+  gap: 8px;
+}

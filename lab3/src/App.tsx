@@ -42,6 +42,17 @@ export default function App() {
     setPreview(null);
   }, []);
 
+  const handleApply = useCallback(
+    (next: ImageData | null) => {
+      if (next && doc) {
+        setDoc({ ...doc, pixels: next });
+      }
+      setLevelsOpen(false);
+      setPreview(null);
+    },
+    [doc],
+  );
+
   const visiblePixels = preview ?? doc?.pixels ?? null;
 
   return (
@@ -61,6 +72,7 @@ export default function App() {
         hasAlpha={hasAlpha}
         onClose={handleClose}
         onPreview={setPreview}
+        onApply={handleApply}
       />
     </div>
   );

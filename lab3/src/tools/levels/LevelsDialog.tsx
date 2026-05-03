@@ -29,6 +29,12 @@ interface LevelsDialogProps {
    * холст к оригиналу».
    */
   onPreview: (preview: ImageData | null) => void;
+  /**
+   * Применить результат: диалог отдаёт новый ImageData (или null, если
+   * настройки тождественные) — App запишет его как новое изображение и
+   * закроет диалог.
+   */
+  onApply: (next: ImageData | null) => void;
 }
 
 /**
@@ -42,6 +48,7 @@ export function LevelsDialog({
   hasAlpha,
   onClose,
   onPreview,
+  onApply,
 }: LevelsDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -168,14 +175,47 @@ export function LevelsDialog({
           <InputLevels params={params} onChange={setParams} />
         </div>
 
-        <label className="levels__preview">
-          <input
-            type="checkbox"
-            checked={previewEnabled}
-            onChange={(e) => setPreviewEnabled(e.target.checked)}
-          />
-          Предпросмотр
-        </label>
+        <div className="levels__footer">
+          <label className="levels__preview">
+            <input
+              type="checkbox"
+              checked={previewEnabled}
+              onChange={(e) => setPreviewEnabled(e.target.checked)}
+            />
+            Предпросмотр
+          </label>
+
+          <div className="levels__buttons">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setByChannel(defaultByChannel())}
+            >
+              Сброс
+            </button>
+            <button type="button" className="btn" onClick={onClose}>
+              Отмена
+            </button>
+            <button
+              type="button"
+              className="btn btn--active"
+              onClick={() => {
+                if (!source) {
+                  onApply(null);
+                  return;
+                }
+                if (!hasAnyChange(byChannel)) {
+                  onApply(null);
+                  return;
+                }
+                const luts = buildChannelLuts(byChannel);
+                onApply(applyLuts(source, luts));
+              }}
+            >
+              Применить
+            </button>
+          </div>
+        </div>
       </form>
     </dialog>
   );
