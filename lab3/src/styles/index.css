@@ -227,3 +227,53 @@ body {
 .statusbar__sep {
   color: var(--border-strong);
 }
+
+.histogram {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.histogram__canvas {
+  width: 100%;
+  height: 120px;
+  display: block;
+  background: #0d1117;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  image-rendering: pixelated;
+}
+
+.histogram__controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.histogram__scale {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.histogram__scale button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.histogram__scale button:hover {
+  background: var(--bg-3);
+}
+
+.histogram__scale button.is-active {
+  background: var(--accent);
+  color: #0e1218;
+}
