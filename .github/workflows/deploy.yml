@@ -42,11 +42,20 @@ jobs:
         working-directory: lab2
         run: npm run build
 
+      - name: Install lab3
+        working-directory: lab3
+        run: npm install
+
+      - name: Build lab3
+        working-directory: lab3
+        run: npm run build
+
       - name: Compose site
         run: |
-          mkdir -p site/lab1 site/lab2
+          mkdir -p site/lab1 site/lab2 site/lab3
           cp -R lab1/dist/. site/lab1/
           cp -R lab2/dist/. site/lab2/
+          cp -R lab3/dist/. site/lab3/
           cat > site/index.html <<'HTML'
           <!doctype html>
           <html lang="ru">
@@ -58,6 +67,7 @@ jobs:
               <ul>
                 <li><a href="./lab1/">Лаб. 1 — GrayBit Image Editor</a></li>
                 <li><a href="./lab2/">Лаб. 2 — Цветовые каналы и пипетка</a></li>
+                <li><a href="./lab3/">Лаб. 3 — Гистограмма и «Уровни»</a></li>
               </ul>
             </body>
           </html>
