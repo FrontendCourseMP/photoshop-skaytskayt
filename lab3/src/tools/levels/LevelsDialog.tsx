@@ -10,7 +10,7 @@ import {
   hasAnyChange,
   type LevelsByChannel,
 } from './buildChannelLuts';
-import { applyLuts } from './applyLevels';
+import { applyLuts, type ChannelLuts } from './applyLevels';
 
 interface LevelsDialogProps {
   open: boolean;
@@ -97,25 +97,41 @@ export function LevelsDialog({
   const setParams = (next: LevelsParams) =>
     setByChannel((prev) => ({ ...prev, [channel]: next }));
 
-  // Пересчитываем превью при каждом изменении параметров либо чекбокса.
-  // Если предпросмотр отключён или диалог закрыт — отдаём null, и App
-  // вернёт холст к оригиналу.
+  // ChannelLuts мемоизирован по byChannel — нет смысла пересобирать
+  // 4 × 256 байт, если состояние не менялось (например, при перерендере из-за
+  // переключения канала-вкладки).
+  const luts: ChannelLuts | null = useMemo(
+    () => (hasAnyChange(byChannel) ? buildChannelLuts(byChannel) : null),
+    [byChannel],
+  );
+
+  // Пересчёт предпросмотра дросселим через requestAnimationFrame: при
+  // быстром перетаскивании ползунков соседние изменения схлопываются в
+  // одно обновление за кадр. Без этого applyLuts на больших изображениях
+  // успевал бы прогрузить event-loop.
+  const rafRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!open) {
+    const cancel = () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+
+    if (!open || !source || !previewEnabled || !luts) {
+      cancel();
       onPreview(null);
-      return;
+      return cancel;
     }
-    if (!source || !previewEnabled) {
-      onPreview(null);
-      return;
-    }
-    if (!hasAnyChange(byChannel)) {
-      onPreview(null);
-      return;
-    }
-    const luts = buildChannelLuts(byChannel);
-    onPreview(applyLuts(source, luts));
-  }, [open, source, previewEnabled, byChannel, onPreview]);
+
+    cancel();
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      onPreview(applyLuts(source, luts));
+    });
+
+    return cancel;
+  }, [open, source, previewEnabled, luts, onPreview]);
 
   return (
     <dialog ref={dialogRef} className="levels">
@@ -200,15 +216,10 @@ export function LevelsDialog({
               type="button"
               className="btn btn--active"
               onClick={() => {
-                if (!source) {
+                if (!source || !luts) {
                   onApply(null);
                   return;
                 }
-                if (!hasAnyChange(byChannel)) {
-                  onApply(null);
-                  return;
-                }
-                const luts = buildChannelLuts(byChannel);
                 onApply(applyLuts(source, luts));
               }}
             >
