@@ -1,0 +1,229 @@
+:root {
+  --bg-0: #14181f;
+  --bg-1: #1b212b;
+  --bg-2: #232a36;
+  --bg-3: #2c3441;
+  --border: #2c3441;
+  --border-strong: #3a4553;
+  --text: #e3e8ef;
+  --text-muted: #8c97a8;
+  --accent: #6aa9ff;
+  --accent-hover: #87bbff;
+  --danger: #ff7474;
+
+  --toolbar-h: 48px;
+  --statusbar-h: 28px;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg-0);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: var(--toolbar-h) 1fr var(--statusbar-h);
+  background: var(--bg-0);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.toolbar__brand {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.toolbar__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-2);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--bg-3);
+  border-color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  background: var(--bg-1);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0e1218;
+}
+
+.btn--active:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: #0e1218;
+}
+
+.workspace {
+  position: relative;
+  overflow: auto;
+  background:
+    linear-gradient(45deg, #1a1f28 25%, transparent 25%) 0 0 / 16px 16px,
+    linear-gradient(-45deg, #1a1f28 25%, transparent 25%) 0 0 / 16px 16px,
+    linear-gradient(45deg, transparent 75%, #1a1f28 75%) 8px 8px / 16px 16px,
+    linear-gradient(-45deg, transparent 75%, #1a1f28 75%) 8px 8px / 16px 16px,
+    var(--bg-0);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.workspace__placeholder {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 12px 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  background: rgba(20, 24, 31, 0.7);
+  text-align: center;
+  max-width: 420px;
+}
+
+.workspace__canvas {
+  display: block;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--border-strong), 0 8px 24px rgba(0, 0, 0, 0.4);
+  image-rendering: pixelated;
+}
+
+.save-menu {
+  position: relative;
+}
+
+.save-menu__caret {
+  margin-left: 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.save-menu__list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  min-width: 220px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.save-menu__item {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.save-menu__item:hover {
+  background: var(--bg-3);
+}
+
+.save-menu__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.save-menu__label {
+  font-weight: 500;
+}
+
+.save-menu__hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  background: var(--bg-1);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.statusbar__item {
+  white-space: nowrap;
+}
+
+.statusbar__item--muted {
+  font-style: italic;
+}
+
+.statusbar__item--error {
+  color: var(--danger);
+}
+
+.statusbar__sep {
+  color: var(--border-strong);
+}
