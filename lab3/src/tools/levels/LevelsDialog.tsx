@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { computeHistograms, selectHistogram, type HistogramSet } from './histogram';
 import { HistogramView, type HistogramScale } from './HistogramView';
 import { CHANNEL_OPTIONS, type ChannelKey } from './channelKeys';
+import { InputLevels } from './InputLevels';
+import { DEFAULT_PARAMS, type LevelsParams } from './levelsState';
 
 interface LevelsDialogProps {
   open: boolean;
@@ -21,6 +23,7 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
 
   const [channel, setChannel] = useState<ChannelKey>('master');
   const [scale, setScale] = useState<HistogramScale>('linear');
+  const [params, setParams] = useState<LevelsParams>(DEFAULT_PARAMS);
 
   const histograms: HistogramSet | null = useMemo(
     () => (source ? computeHistograms(source) : null),
@@ -35,6 +38,7 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
       dialog.showModal();
       // При новом открытии всегда стартуем с Master, чтобы привычно начать.
       setChannel('master');
+      setParams(DEFAULT_PARAMS);
     } else if (!open && dialog.open) {
       dialog.close();
     }
@@ -110,6 +114,7 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
             channel={channel}
             scale={scale}
           />
+          <InputLevels params={params} onChange={setParams} />
         </div>
       </form>
     </dialog>

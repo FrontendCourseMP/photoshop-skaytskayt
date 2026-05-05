@@ -361,3 +361,87 @@ body {
   padding: 4px 8px;
   font: inherit;
 }
+
+.levels-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.levels-input__track {
+  position: relative;
+  margin-top: 6px;
+  height: 14px;
+}
+
+.levels-input__gradient {
+  position: absolute;
+  inset: 4px 0;
+  background: linear-gradient(to right, #000, #fff);
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+}
+
+.levels-input__marker {
+  position: absolute;
+  top: 0;
+  bottom: -6px;
+  width: 12px;
+  margin-left: -6px;
+  cursor: ew-resize;
+  border-radius: 2px;
+}
+
+.levels-input__marker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid currentColor;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.levels-input__marker--black {
+  color: #000;
+}
+
+.levels-input__marker--gamma {
+  color: #b6b6b6;
+}
+
+.levels-input__marker--white {
+  color: #fff;
+}
+
+.levels-input__values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.levels-input__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.levels-input__field input {
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: inherit;
+}
+
+.levels-input__field input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
