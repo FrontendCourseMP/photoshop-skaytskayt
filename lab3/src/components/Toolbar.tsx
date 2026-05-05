@@ -6,9 +6,17 @@ interface ToolbarProps {
   onFile: (file: File) => void;
   onSave: (format: SaveFormat) => void;
   canSave: boolean;
+  onOpenLevels: () => void;
+  levelsDisabled: boolean;
 }
 
-export function Toolbar({ onFile, onSave, canSave }: ToolbarProps) {
+export function Toolbar({
+  onFile,
+  onSave,
+  canSave,
+  onOpenLevels,
+  levelsDisabled,
+}: ToolbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => inputRef.current?.click();
@@ -22,6 +30,17 @@ export function Toolbar({ onFile, onSave, canSave }: ToolbarProps) {
   return (
     <header className="toolbar">
       <span className="toolbar__brand">GrayBit Image Editor</span>
+      <div className="toolbar__tools">
+        <button
+          type="button"
+          className="btn"
+          disabled={levelsDisabled}
+          title="Открыть инструмент «Уровни»"
+          onClick={onOpenLevels}
+        >
+          Уровни…
+        </button>
+      </div>
       <div className="toolbar__actions">
         <input
           ref={inputRef}
