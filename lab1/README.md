@@ -1,3 +1,3 @@
 # GrayBit Image Editor
 
-https://skaytskayt.github.io/Computer-graphics-technologies/
+https://frontendcoursemp.github.io/photoshop-skaytskayt/
