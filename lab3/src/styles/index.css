@@ -445,3 +445,18 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+
+.levels__preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  user-select: none;
+  cursor: pointer;
+}
+
+.levels__preview input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}

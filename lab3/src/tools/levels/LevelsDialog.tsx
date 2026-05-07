@@ -5,16 +5,30 @@ import { CHANNEL_OPTIONS, type ChannelKey } from './channelKeys';
 import { InputLevels } from './InputLevels';
 import type { LevelsParams } from './levelsState';
 import {
+  buildChannelLuts,
   defaultByChannel,
+  hasAnyChange,
   type LevelsByChannel,
 } from './buildChannelLuts';
+import { applyLuts } from './applyLevels';
 
 interface LevelsDialogProps {
   open: boolean;
-  /** Снимок изображения, по которому считаем гистограмму. */
+  /**
+   * Снимок изображения, по которому считаем гистограмму и от которого
+   * стартует предпросмотр. Это всегда «оригинал» — изображение в момент
+   * открытия диалога. Поверх него мы накладываем LUT и отдаём результат
+   * наружу через onPreview.
+   */
   source: ImageData | null;
   hasAlpha: boolean;
   onClose: () => void;
+  /**
+   * Колбек предпросмотра: получает либо изменённый ImageData (когда галочка
+   * включена и есть реальные изменения), либо null — это сигнал «вернуть
+   * холст к оригиналу».
+   */
+  onPreview: (preview: ImageData | null) => void;
 }
 
 /**
@@ -22,7 +36,13 @@ interface LevelsDialogProps {
  * Слайдеры входных уровней и логика применения добавляются отдельным
  * коммитом — здесь мы только показываем гистограмму выбранного канала.
  */
-export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogProps) {
+export function LevelsDialog({
+  open,
+  source,
+  hasAlpha,
+  onClose,
+  onPreview,
+}: LevelsDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const [channel, setChannel] = useState<ChannelKey>('master');
@@ -30,6 +50,7 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
   // Параметры всех каналов одновременно: переключение канала не сбрасывает
   // ввод, сделанный в другом канале.
   const [byChannel, setByChannel] = useState<LevelsByChannel>(defaultByChannel);
+  const [previewEnabled, setPreviewEnabled] = useState(true);
 
   const histograms: HistogramSet | null = useMemo(
     () => (source ? computeHistograms(source) : null),
@@ -45,6 +66,7 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
       // При новом открытии всегда стартуем с Master, чтобы привычно начать.
       setChannel('master');
       setByChannel(defaultByChannel());
+      setPreviewEnabled(true);
     } else if (!open && dialog.open) {
       dialog.close();
     }
@@ -67,6 +89,26 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
   const params = byChannel[channel];
   const setParams = (next: LevelsParams) =>
     setByChannel((prev) => ({ ...prev, [channel]: next }));
+
+  // Пересчитываем превью при каждом изменении параметров либо чекбокса.
+  // Если предпросмотр отключён или диалог закрыт — отдаём null, и App
+  // вернёт холст к оригиналу.
+  useEffect(() => {
+    if (!open) {
+      onPreview(null);
+      return;
+    }
+    if (!source || !previewEnabled) {
+      onPreview(null);
+      return;
+    }
+    if (!hasAnyChange(byChannel)) {
+      onPreview(null);
+      return;
+    }
+    const luts = buildChannelLuts(byChannel);
+    onPreview(applyLuts(source, luts));
+  }, [open, source, previewEnabled, byChannel, onPreview]);
 
   return (
     <dialog ref={dialogRef} className="levels">
@@ -125,6 +167,15 @@ export function LevelsDialog({ open, source, hasAlpha, onClose }: LevelsDialogPr
           />
           <InputLevels params={params} onChange={setParams} />
         </div>
+
+        <label className="levels__preview">
+          <input
+            type="checkbox"
+            checked={previewEnabled}
+            onChange={(e) => setPreviewEnabled(e.target.checked)}
+          />
+          Предпросмотр
+        </label>
       </form>
     </dialog>
   );
