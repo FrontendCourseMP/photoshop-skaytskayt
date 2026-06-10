@@ -2,7 +2,7 @@
 
 Единое приложение — редактор изображений (ТКГ, лабораторные 1–5).
 
-**Демо на хостинге:** <https://frontendcoursemp.github.io/photoshop-skaytskayt/>
+**Демо на хостинге:** https://fork-photoshop-skaytskayt.vercel.app
 
 ## Функциональность
 
