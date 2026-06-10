@@ -6,7 +6,6 @@ export type HistogramScale = 'linear' | 'log';
 
 interface HistogramViewProps {
   bins: Uint32Array | null;
-  globalMax: number;
   channel: ChannelKey;
   scale: HistogramScale;
   width?: number;
@@ -15,7 +14,6 @@ interface HistogramViewProps {
 
 export function HistogramView({
   bins,
-  globalMax,
   channel,
   scale,
   width = HISTOGRAM_BINS,
@@ -34,14 +32,18 @@ export function HistogramView({
 
     ctx.clearRect(0, 0, width, height);
 
-    if (!bins || globalMax === 0) {
+    // Нормируем по максимуму отображаемой гистограммы: глобальный максимум
+    // по всем каналам делает линейную гистограмму почти плоской, когда
+    // доминирует один бин (например, alpha=255 у непрозрачных изображений).
+    const maxCount = bins ? maxBin(bins) : 0;
+    if (!bins || maxCount === 0) {
       drawEmpty(ctx, width, height);
       return;
     }
 
     const color = findChannel(channel).color;
-    drawBins(ctx, bins, width, height, globalMax, color, scale);
-  }, [bins, globalMax, channel, scale, width, height]);
+    drawBins(ctx, bins, width, height, maxCount, color, scale);
+  }, [bins, channel, scale, width, height]);
 
   return <canvas ref={canvasRef} className="histogram__canvas" />;
 }
@@ -68,6 +70,14 @@ function drawBins(
     const w = Math.max(1, Math.ceil(binWidth));
     ctx.fillRect(x, height - h, w, h);
   }
+}
+
+function maxBin(bins: Uint32Array): number {
+  let max = 0;
+  for (let i = 0; i < bins.length; i++) {
+    if (bins[i] > max) max = bins[i];
+  }
+  return max;
 }
 
 function drawEmpty(ctx: CanvasRenderingContext2D, width: number, height: number): void {

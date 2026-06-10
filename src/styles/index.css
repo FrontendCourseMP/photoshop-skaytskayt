@@ -667,28 +667,17 @@ body {
   color: var(--danger);
 }
 
-.resize__lock {
-  appearance: none;
-  background: var(--bg-2);
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
+.resize__dims-x {
   color: var(--text-muted);
-  font-size: 16px;
-  padding: 6px 8px;
+  margin-top: 24px;
+}
+
+.resize__aspect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
   cursor: pointer;
-  margin-top: 18px;
-  line-height: 1;
-  transition: background 0.12s, border-color 0.12s;
-}
-
-.resize__lock:hover {
-  background: var(--bg-3);
-  border-color: var(--accent);
-}
-
-.resize__lock--on {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .resize__tooltip-wrap {
@@ -816,6 +805,20 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
+}
+
+.kernel__params {
+  display: flex;
+  gap: 12px;
+}
+
+.kernel__params .kernel__field {
+  flex: 1;
+}
+
+.kernel__params .kernel__cell {
+  flex: 1;
+  min-width: 0;
 }
 
 .kernel__cell {

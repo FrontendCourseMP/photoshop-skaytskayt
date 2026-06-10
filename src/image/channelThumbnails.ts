@@ -5,8 +5,11 @@ export function makeChannelThumbnail(
   key: ChannelKey,
   maxSize: number,
 ): ImageData {
-  const small = downscaleImageData(source, maxSize);
-  return extractChannelImage(small, key);
+  // Сначала извлекаем канал (получается непрозрачное серое изображение),
+  // и только потом уменьшаем: drawImage премультиплицирует альфу и затирает
+  // RGB в прозрачных областях, если уменьшать оригинал с прозрачностью.
+  const channelImage = extractChannelImage(source, key);
+  return downscaleImageData(channelImage, maxSize);
 }
 
 export function extractChannelImage(source: ImageData, key: ChannelKey): ImageData {

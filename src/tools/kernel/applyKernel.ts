@@ -22,13 +22,12 @@ export function applyKernelRaw(
   width: number,
   height: number,
   kernel: number[],
+  divisor: number,
+  offset: number,
   channels: boolean[],
   edge: EdgeMode,
 ): Uint8ClampedArray<ArrayBuffer> {
   const out = new Uint8ClampedArray(data);
-
-  const sum = kernel.reduce((a, b) => a + b, 0);
-  const divisor = Math.abs(sum) > 1e-6 ? sum : 1;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -41,7 +40,7 @@ export function applyKernelRaw(
             acc += kernel[ky * 3 + kx] * sampleChannel(data, width, height, x + kx - 1, y + ky - 1, c, edge);
           }
         }
-        out[idx + c] = Math.max(0, Math.min(255, Math.round(acc / divisor)));
+        out[idx + c] = Math.max(0, Math.min(255, Math.round(acc / divisor + offset)));
       }
     }
   }

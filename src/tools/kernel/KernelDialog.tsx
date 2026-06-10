@@ -13,12 +13,19 @@ interface KernelDialogProps {
   onApply: (result: ImageData) => void;
 }
 
-const IDENTITY = KERNEL_PRESETS[0].values;
+const IDENTITY = KERNEL_PRESETS[0];
 const CHANNEL_LABELS = ['R', 'G', 'B', 'A'];
 
-function runSync(src: ImageData, kernel: number[], channels: boolean[], edge: EdgeMode): ImageData {
+function runSync(
+  src: ImageData,
+  kernel: number[],
+  divisor: number,
+  offset: number,
+  channels: boolean[],
+  edge: EdgeMode,
+): ImageData {
   const copy = new Uint8ClampedArray(src.data.buffer.slice(src.data.byteOffset, src.data.byteOffset + src.data.byteLength)) as Uint8ClampedArray<ArrayBuffer>;
-  const result = applyKernelRaw(copy, src.width, src.height, kernel, channels, edge);
+  const result = applyKernelRaw(copy, src.width, src.height, kernel, divisor, offset, channels, edge);
   return new ImageData(result, src.width, src.height);
 }
 
@@ -31,7 +38,9 @@ export function KernelDialog({
   onApply,
 }: KernelDialogProps) {
   const [presetIdx, setPresetIdx] = useState(0);
-  const [kernelStrs, setKernelStrs] = useState<string[]>(IDENTITY.map(String));
+  const [kernelStrs, setKernelStrs] = useState<string[]>(IDENTITY.values.map(String));
+  const [divisorStr, setDivisorStr] = useState(String(IDENTITY.divisor));
+  const [offsetStr, setOffsetStr] = useState(String(IDENTITY.offset));
   const [channels, setChannels] = useState<boolean[]>([true, true, true, false]);
   const [edge, setEdge] = useState<EdgeMode>('black');
   const [previewEnabled, setPreviewEnabled] = useState(true);
@@ -42,7 +51,9 @@ export function KernelDialog({
   useEffect(() => {
     if (open) {
       setPresetIdx(0);
-      setKernelStrs(IDENTITY.map(String));
+      setKernelStrs(IDENTITY.values.map(String));
+      setDivisorStr(String(IDENTITY.divisor));
+      setOffsetStr(String(IDENTITY.offset));
       setChannels([true, true, true, false]);
       setEdge('black');
       setPreviewEnabled(true);
@@ -51,7 +62,14 @@ export function KernelDialog({
   }, [open]);
 
   const parsedKernel = useMemo(() => kernelStrs.map((s) => parseFloat(s)), [kernelStrs]);
-  const kernelValid = useMemo(() => parsedKernel.every((v) => !Number.isNaN(v)), [parsedKernel]);
+  const divisor = parseFloat(divisorStr);
+  const offset = parseFloat(offsetStr);
+  const divisorValid = !Number.isNaN(divisor) && divisor !== 0;
+  const offsetValid = !Number.isNaN(offset);
+  const kernelValid = useMemo(
+    () => parsedKernel.every((v) => !Number.isNaN(v)),
+    [parsedKernel],
+  ) && divisorValid && offsetValid;
   const anyChannel = channels.some(Boolean);
 
   // Preview effect: spawns a worker and cancels the previous one on change
@@ -75,12 +93,12 @@ export function KernelDialog({
     worker.onerror = () => {
       worker.terminate();
       if (!cancelled) {
-        onPreview(runSync(source, parsedKernel, channels, edge));
+        onPreview(runSync(source, parsedKernel, divisor, offset, channels, edge));
       }
     };
 
     worker.postMessage(
-      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, channels, edge },
+      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, divisor, offset, channels, edge },
       [copy],
     );
 
@@ -88,11 +106,14 @@ export function KernelDialog({
       cancelled = true;
       worker.terminate();
     };
-  }, [open, source, previewEnabled, kernelValid, anyChannel, parsedKernel, channels, edge, onPreview]);
+  }, [open, source, previewEnabled, kernelValid, anyChannel, parsedKernel, divisor, offset, channels, edge, onPreview]);
 
   const handlePresetChange = (idx: number) => {
+    const preset = KERNEL_PRESETS[idx];
     setPresetIdx(idx);
-    setKernelStrs(KERNEL_PRESETS[idx].values.map(String));
+    setKernelStrs(preset.values.map(String));
+    setDivisorStr(String(preset.divisor));
+    setOffsetStr(String(preset.offset));
   };
 
   const handleCellChange = (i: number, val: string) => {
@@ -102,7 +123,9 @@ export function KernelDialog({
 
   const handleReset = () => {
     setPresetIdx(0);
-    setKernelStrs(IDENTITY.map(String));
+    setKernelStrs(IDENTITY.values.map(String));
+    setDivisorStr(String(IDENTITY.divisor));
+    setOffsetStr(String(IDENTITY.offset));
     setChannels([true, true, true, false]);
     setEdge('black');
   };
@@ -127,11 +150,11 @@ export function KernelDialog({
       worker.terminate();
       applyWorkerRef.current = null;
       setBusy(false);
-      onApply(runSync(source, parsedKernel, channels, edge));
+      onApply(runSync(source, parsedKernel, divisor, offset, channels, edge));
     };
 
     worker.postMessage(
-      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, channels, edge },
+      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, divisor, offset, channels, edge },
       [copy],
     );
   };
@@ -178,6 +201,37 @@ export function KernelDialog({
               onChange={(e) => handleCellChange(i, e.target.value)}
             />
           ))}
+        </div>
+
+        <div className="kernel__params">
+          <label className="kernel__field">
+            <span>Делитель</span>
+            <input
+              className={`kernel__cell${divisorValid ? '' : ' kernel__cell--error'}`}
+              type="number"
+              step="any"
+              title="Сумма произведений делится на это число (0 недопустим)"
+              value={divisorStr}
+              onChange={(e) => {
+                setPresetIdx(-1);
+                setDivisorStr(e.target.value);
+              }}
+            />
+          </label>
+          <label className="kernel__field">
+            <span>Смещение</span>
+            <input
+              className={`kernel__cell${offsetValid ? '' : ' kernel__cell--error'}`}
+              type="number"
+              step="any"
+              title="Прибавляется к результату (например, 128 для просмотра градиентов)"
+              value={offsetStr}
+              onChange={(e) => {
+                setPresetIdx(-1);
+                setOffsetStr(e.target.value);
+              }}
+            />
+          </label>
         </div>
 
         <div className="kernel__section">

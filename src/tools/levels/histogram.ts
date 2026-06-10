@@ -8,7 +8,6 @@ export interface HistogramSet {
   green: Uint32Array;
   blue: Uint32Array;
   alpha: Uint32Array;
-  maxCount: number;
   totalPixels: number;
 }
 
@@ -37,16 +36,7 @@ export function computeHistograms(pixels: ImageData): HistogramSet {
     master[luma]++;
   }
 
-  let maxCount = 0;
-  for (let i = 0; i < HISTOGRAM_BINS; i++) {
-    if (master[i] > maxCount) maxCount = master[i];
-    if (red[i] > maxCount) maxCount = red[i];
-    if (green[i] > maxCount) maxCount = green[i];
-    if (blue[i] > maxCount) maxCount = blue[i];
-    if (alpha[i] > maxCount) maxCount = alpha[i];
-  }
-
-  return { master, red, green, blue, alpha, maxCount, totalPixels: total };
+  return { master, red, green, blue, alpha, totalPixels: total };
 }
 
 export function selectHistogram(set: HistogramSet, channel: ChannelKey): Uint32Array {

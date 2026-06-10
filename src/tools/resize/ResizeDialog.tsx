@@ -181,14 +181,7 @@ export function ResizeDialog({ open, source, onClose, onApply }: ResizeDialogPro
             {errors.width && <span className="resize__error">{errors.width}</span>}
           </div>
 
-          <button
-            type="button"
-            className={`resize__lock${keepAspect ? ' resize__lock--on' : ''}`}
-            title={keepAspect ? 'Пропорции заблокированы' : 'Пропорции не привязаны'}
-            onClick={() => setKeepAspect((v) => !v)}
-          >
-            {keepAspect ? '🔗' : '🔓'}
-          </button>
+          <span className="resize__dims-x">×</span>
 
           <div className="resize__dim-col">
             <label className="resize__dim-label">Высота</label>
@@ -204,6 +197,15 @@ export function ResizeDialog({ open, source, onClose, onApply }: ResizeDialogPro
             {errors.height && <span className="resize__error">{errors.height}</span>}
           </div>
         </div>
+
+        <label className="resize__aspect">
+          <input
+            type="checkbox"
+            checked={keepAspect}
+            onChange={(e) => setKeepAspect(e.target.checked)}
+          />
+          Сохранять пропорции исходного изображения
+        </label>
 
         <div className="resize__row resize__row--interp">
           <label className="resize__field">

@@ -135,12 +135,7 @@ export function LevelsDialog({
         </div>
 
         <div className="histogram">
-          <HistogramView
-            bins={bins}
-            globalMax={histograms?.maxCount ?? 0}
-            channel={channel}
-            scale={scale}
-          />
+          <HistogramView bins={bins} channel={channel} scale={scale} />
           <InputLevels params={params} onChange={setParams} />
         </div>
 

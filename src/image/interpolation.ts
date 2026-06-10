@@ -46,16 +46,20 @@ function resizeBilinear(src: ImageData, dstW: number, dstH: number): ImageData {
 
   for (let y = 0; y < dstH; y++) {
     const fy = y * scaleY - 0.5;
-    const y0 = Math.max(0, Math.floor(fy));
-    const y1 = Math.min(y0 + 1, srcH - 1);
-    const ty = fy - Math.floor(fy);
+    const yf = Math.floor(fy);
+    // Кламп обеих строк от исходного yf: иначе на кромке (yf = -1)
+    // y1 считался бы от уже зажатого y0 и кромка смешивалась со вторым рядом.
+    const y0 = Math.max(0, yf);
+    const y1 = Math.max(0, Math.min(yf + 1, srcH - 1));
+    const ty = fy - yf;
     const ty1 = 1 - ty;
 
     for (let x = 0; x < dstW; x++) {
       const fx = x * scaleX - 0.5;
-      const x0 = Math.max(0, Math.floor(fx));
-      const x1 = Math.min(x0 + 1, srcW - 1);
-      const tx = fx - Math.floor(fx);
+      const xf = Math.floor(fx);
+      const x0 = Math.max(0, xf);
+      const x1 = Math.max(0, Math.min(xf + 1, srcW - 1));
+      const tx = fx - xf;
       const tx1 = 1 - tx;
 
       const i00 = (y0 * srcW + x0) * 4;
