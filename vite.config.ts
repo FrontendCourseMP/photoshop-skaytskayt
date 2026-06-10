@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react';
 
 const repoName = 'photoshop-skaytskayt';
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(() => ({
   plugins: [react()],
-  base: command === 'build' ? `/${repoName}/` : './',
+  // GitHub Pages раздаёт сайт из подпапки /photoshop-skaytskayt/, Vercel — из корня
+  base: process.env.GITHUB_ACTIONS ? `/${repoName}/` : '/',
 }));
