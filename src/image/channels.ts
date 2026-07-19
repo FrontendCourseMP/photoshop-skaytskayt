@@ -33,7 +33,18 @@ export function detectChannelLayout(doc: ImageDoc): ChannelLayout {
     };
   }
 
-  const hasAlpha = pixelsHaveAlpha(doc.pixels);
+  const hasAlpha = doc.hasAlphaChannel ?? pixelsHaveAlpha(doc.pixels);
+
+  if (doc.isGray) {
+    const channels: ChannelInfo[] = [
+      { key: 'gray', label: 'Gray', description: 'Яркость 0..255' },
+    ];
+    if (hasAlpha) {
+      channels.push({ key: 'a', label: 'A', description: 'Альфа 0..255' });
+    }
+    return { channels, hasColor: false, hasAlpha };
+  }
+
   const channels: ChannelInfo[] = [
     { key: 'r', label: 'R', description: 'Красный 0..255' },
     { key: 'g', label: 'G', description: 'Зелёный 0..255' },

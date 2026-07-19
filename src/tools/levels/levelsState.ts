@@ -25,7 +25,8 @@ export function clampWhite(white: number, black: number): number {
 
 export function clampGamma(gamma: number): number {
   if (Number.isNaN(gamma)) return 1.0;
-  return Math.min(GAMMA_MAX, Math.max(GAMMA_MIN, gamma));
+  const clamped = Math.min(GAMMA_MAX, Math.max(GAMMA_MIN, gamma));
+  return Math.round(clamped * 100) / 100;
 }
 
 function clampInt(v: number, lo: number, hi: number): number {

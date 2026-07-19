@@ -10,11 +10,12 @@ interface WorkerInput {
   offset: number;
   channels: boolean[];
   edge: EdgeMode;
+  absolute?: boolean;
 }
 
 self.onmessage = (e: MessageEvent<WorkerInput>) => {
-  const { buffer, width, height, kernel, divisor, offset, channels, edge } = e.data;
+  const { buffer, width, height, kernel, divisor, offset, channels, edge, absolute } = e.data;
   const data = new Uint8ClampedArray(buffer);
-  const result = applyKernelRaw(data, width, height, kernel, divisor, offset, channels, edge);
+  const result = applyKernelRaw(data, width, height, kernel, divisor, offset, channels, edge, absolute);
   self.postMessage({ buffer: result.buffer }, [result.buffer]);
 };

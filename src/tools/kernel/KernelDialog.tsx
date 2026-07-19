@@ -23,9 +23,10 @@ function runSync(
   offset: number,
   channels: boolean[],
   edge: EdgeMode,
+  absolute: boolean,
 ): ImageData {
   const copy = new Uint8ClampedArray(src.data.buffer.slice(src.data.byteOffset, src.data.byteOffset + src.data.byteLength)) as Uint8ClampedArray<ArrayBuffer>;
-  const result = applyKernelRaw(copy, src.width, src.height, kernel, divisor, offset, channels, edge);
+  const result = applyKernelRaw(copy, src.width, src.height, kernel, divisor, offset, channels, edge, absolute);
   return new ImageData(result, src.width, src.height);
 }
 
@@ -43,6 +44,7 @@ export function KernelDialog({
   const [offsetStr, setOffsetStr] = useState(String(IDENTITY.offset));
   const [channels, setChannels] = useState<boolean[]>([true, true, true, false]);
   const [edge, setEdge] = useState<EdgeMode>('black');
+  const [absolute, setAbsolute] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -56,6 +58,7 @@ export function KernelDialog({
       setOffsetStr(String(IDENTITY.offset));
       setChannels([true, true, true, false]);
       setEdge('black');
+      setAbsolute(false);
       setPreviewEnabled(true);
       setBusy(false);
     }
@@ -93,12 +96,12 @@ export function KernelDialog({
     worker.onerror = () => {
       worker.terminate();
       if (!cancelled) {
-        onPreview(runSync(source, parsedKernel, divisor, offset, channels, edge));
+        onPreview(runSync(source, parsedKernel, divisor, offset, channels, edge, absolute));
       }
     };
 
     worker.postMessage(
-      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, divisor, offset, channels, edge },
+      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, divisor, offset, channels, edge, absolute },
       [copy],
     );
 
@@ -106,7 +109,7 @@ export function KernelDialog({
       cancelled = true;
       worker.terminate();
     };
-  }, [open, source, previewEnabled, kernelValid, anyChannel, parsedKernel, divisor, offset, channels, edge, onPreview]);
+  }, [open, source, previewEnabled, kernelValid, anyChannel, parsedKernel, divisor, offset, channels, edge, absolute, onPreview]);
 
   const handlePresetChange = (idx: number) => {
     const preset = KERNEL_PRESETS[idx];
@@ -114,10 +117,12 @@ export function KernelDialog({
     setKernelStrs(preset.values.map(String));
     setDivisorStr(String(preset.divisor));
     setOffsetStr(String(preset.offset));
+    setAbsolute(preset.absolute ?? false);
   };
 
   const handleCellChange = (i: number, val: string) => {
     setPresetIdx(-1);
+    setAbsolute(false);
     setKernelStrs((prev) => prev.map((v, j) => (j === i ? val : v)));
   };
 
@@ -128,6 +133,7 @@ export function KernelDialog({
     setOffsetStr(String(IDENTITY.offset));
     setChannels([true, true, true, false]);
     setEdge('black');
+    setAbsolute(false);
   };
 
   const handleApply = () => {
@@ -150,11 +156,11 @@ export function KernelDialog({
       worker.terminate();
       applyWorkerRef.current = null;
       setBusy(false);
-      onApply(runSync(source, parsedKernel, divisor, offset, channels, edge));
+      onApply(runSync(source, parsedKernel, divisor, offset, channels, edge, absolute));
     };
 
     worker.postMessage(
-      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, divisor, offset, channels, edge },
+      { buffer: copy, width: source.width, height: source.height, kernel: parsedKernel, divisor, offset, channels, edge, absolute },
       [copy],
     );
   };
@@ -214,6 +220,7 @@ export function KernelDialog({
               value={divisorStr}
               onChange={(e) => {
                 setPresetIdx(-1);
+                setAbsolute(false);
                 setDivisorStr(e.target.value);
               }}
             />
@@ -228,6 +235,7 @@ export function KernelDialog({
               value={offsetStr}
               onChange={(e) => {
                 setPresetIdx(-1);
+                setAbsolute(false);
                 setOffsetStr(e.target.value);
               }}
             />

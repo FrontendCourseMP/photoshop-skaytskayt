@@ -3,6 +3,8 @@ export interface KernelPreset {
   values: number[];
   divisor: number;
   offset: number;
+  /** Брать модуль свёртки (для градиентных операторов) */
+  absolute?: boolean;
 }
 
 export const KERNEL_PRESETS: KernelPreset[] = [
@@ -31,17 +33,19 @@ export const KERNEL_PRESETS: KernelPreset[] = [
     offset: 0,
   },
   {
-    // Смещение 128: градиенты обоих знаков видны на сером фоне,
-    // отрицательные не срезаются в ноль.
+    // Модуль свёртки: границы яркие независимо от знака градиента,
+    // однородные области остаются чёрными.
     label: 'Оператор Прюитта (горизонт.)',
     values: [-1, 0, 1, -1, 0, 1, -1, 0, 1],
     divisor: 1,
-    offset: 128,
+    offset: 0,
+    absolute: true,
   },
   {
     label: 'Оператор Прюитта (вертик.)',
     values: [-1, -1, -1, 0, 0, 0, 1, 1, 1],
     divisor: 1,
-    offset: 128,
+    offset: 0,
+    absolute: true,
   },
 ];

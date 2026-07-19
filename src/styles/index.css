@@ -343,7 +343,7 @@ body {
 }
 
 .levels::backdrop {
-  background: rgba(8, 12, 18, 0.6);
+  background: transparent;
 }
 
 .levels__form {
@@ -741,7 +741,7 @@ body {
 }
 
 .kernel::backdrop {
-  background: rgba(8, 12, 18, 0.6);
+  background: transparent;
 }
 
 .kernel__form {

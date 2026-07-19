@@ -206,6 +206,7 @@ export default function App() {
 function detectAlpha(doc: ImageDoc | null): boolean {
   if (!doc) return false;
   if (doc.source === 'gb7') return doc.hasMask === true;
+  if (doc.hasAlphaChannel !== undefined) return doc.hasAlphaChannel;
   const data = doc.pixels.data;
   for (let i = 3; i < data.length; i += 4) {
     if (data[i] !== 255) return true;

@@ -26,6 +26,7 @@ export function applyKernelRaw(
   offset: number,
   channels: boolean[],
   edge: EdgeMode,
+  absolute = false,
 ): Uint8ClampedArray<ArrayBuffer> {
   const out = new Uint8ClampedArray(data);
 
@@ -40,7 +41,8 @@ export function applyKernelRaw(
             acc += kernel[ky * 3 + kx] * sampleChannel(data, width, height, x + kx - 1, y + ky - 1, c, edge);
           }
         }
-        out[idx + c] = Math.max(0, Math.min(255, Math.round(acc / divisor + offset)));
+        const value = absolute ? Math.abs(acc / divisor) : acc / divisor;
+        out[idx + c] = Math.max(0, Math.min(255, Math.round(value + offset)));
       }
     }
   }
