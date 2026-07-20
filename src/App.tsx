@@ -197,6 +197,7 @@ export default function App() {
         open={kernelOpen}
         source={doc?.pixels ?? null}
         hasAlpha={hasAlpha}
+        isGray={isGray}
         onClose={handleCloseKernel}
         onPreview={setPreview}
         onApply={handleApplyKernel}

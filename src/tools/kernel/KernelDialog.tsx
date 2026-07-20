@@ -8,6 +8,7 @@ interface KernelDialogProps {
   open: boolean;
   source: ImageData | null;
   hasAlpha: boolean;
+  isGray: boolean;
   onClose: () => void;
   onPreview: (preview: ImageData | null) => void;
   onApply: (result: ImageData) => void;
@@ -34,6 +35,7 @@ export function KernelDialog({
   open,
   source,
   hasAlpha,
+  isGray,
   onClose,
   onPreview,
   onApply,
@@ -168,6 +170,12 @@ export function KernelDialog({
   const toggleChannel = (i: number) =>
     setChannels((prev) => prev.map((v, j) => (j === i ? !v : v)));
 
+  const toggleGray = () =>
+    setChannels((prev) => {
+      const next = !prev[0];
+      return prev.map((v, j) => (j < 3 ? next : v));
+    });
+
   return (
     <Modal open={open} onClose={onClose} className="kernel">
       <div className="kernel__form">
@@ -245,9 +253,13 @@ export function KernelDialog({
         <div className="kernel__section">
           <span className="kernel__label">Каналы</span>
           <div className="kernel__channels">
-            {CHANNEL_LABELS.map((label, i) => {
-              if (i === 3 && !hasAlpha) return null;
-              return (
+            {isGray ? (
+              <label className="kernel__check">
+                <input type="checkbox" checked={channels[0]} onChange={toggleGray} />
+                Gray
+              </label>
+            ) : (
+              CHANNEL_LABELS.slice(0, 3).map((label, i) => (
                 <label key={label} className="kernel__check">
                   <input
                     type="checkbox"
@@ -256,8 +268,18 @@ export function KernelDialog({
                   />
                   {label}
                 </label>
-              );
-            })}
+              ))
+            )}
+            {hasAlpha && (
+              <label className="kernel__check">
+                <input
+                  type="checkbox"
+                  checked={channels[3]}
+                  onChange={() => toggleChannel(3)}
+                />
+                A
+              </label>
+            )}
           </div>
         </div>
 
