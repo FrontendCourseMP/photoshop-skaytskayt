@@ -33,7 +33,7 @@ export function detectChannelLayout(doc: ImageDoc): ChannelLayout {
     };
   }
 
-  const hasAlpha = doc.hasAlphaChannel ?? pixelsHaveAlpha(doc.pixels);
+  const hasAlpha = doc.hasAlphaChannel;
 
   if (doc.isGray) {
     const channels: ChannelInfo[] = [
@@ -62,12 +62,4 @@ export function detectChannelLayout(doc: ImageDoc): ChannelLayout {
 
 export function allKeys(layout: ChannelLayout): ChannelKey[] {
   return layout.channels.map((c) => c.key);
-}
-
-function pixelsHaveAlpha(img: ImageData): boolean {
-  const d = img.data;
-  for (let i = 3; i < d.length; i += 4) {
-    if (d[i] !== 255) return true;
-  }
-  return false;
 }

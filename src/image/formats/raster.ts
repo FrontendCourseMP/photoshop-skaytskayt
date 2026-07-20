@@ -33,8 +33,9 @@ export async function decodeRaster(
       height,
       pixels,
       colorDepth: pngMeta ? describePngDepth(pngMeta) : detectDepth(pixels),
-      isGray: pngMeta?.gray,
-      hasAlphaChannel: pngMeta?.alpha,
+      isGray: pngMeta?.gray ?? pixelsAreGray(pixels),
+      hasAlphaChannel:
+        source === 'jpg' ? false : (pngMeta?.alpha ?? pixelsHaveAlpha(pixels)),
       fileName: file.name,
     };
   } finally {
@@ -94,4 +95,21 @@ function detectDepth(img: ImageData): string {
     if (data[i] !== 255) return '32 bpp (RGBA)';
   }
   return '24 bpp (RGB)';
+}
+
+// Фолбэк, когда формат не дал метаданных о составе каналов
+function pixelsAreGray(img: ImageData): boolean {
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i] !== d[i + 1] || d[i + 1] !== d[i + 2]) return false;
+  }
+  return true;
+}
+
+function pixelsHaveAlpha(img: ImageData): boolean {
+  const d = img.data;
+  for (let i = 3; i < d.length; i += 4) {
+    if (d[i] !== 255) return true;
+  }
+  return false;
 }

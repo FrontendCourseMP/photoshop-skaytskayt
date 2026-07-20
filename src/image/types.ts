@@ -5,9 +5,9 @@ export interface ImageDoc {
   pixels: ImageData;
   colorDepth: string;
   hasMask?: boolean;
-  /** Состав каналов из метаданных файла (PNG IHDR); undefined — определять по пикселям */
-  isGray?: boolean;
-  hasAlphaChannel?: boolean;
+  /** Состав каналов: из метаданных файла, иначе — по пикселям (см. decode-функции) */
+  isGray: boolean;
+  hasAlphaChannel: boolean;
   fileName?: string;
 }
 

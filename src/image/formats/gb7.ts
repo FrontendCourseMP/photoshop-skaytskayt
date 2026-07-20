@@ -72,6 +72,8 @@ export function decodeGB7(buffer: ArrayBuffer, opts: DecodeGB7Options = {}): Ima
     pixels,
     colorDepth: hasMask ? '7 bpp (gray + 1-bit mask)' : '7 bpp (grayscale)',
     hasMask,
+    isGray: true,
+    hasAlphaChannel: hasMask,
     fileName: opts.fileName,
   };
 }
