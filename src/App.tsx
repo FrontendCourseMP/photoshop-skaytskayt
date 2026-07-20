@@ -37,6 +37,7 @@ export default function App() {
   const hasAlpha = useMemo(() => detectAlpha(doc), [doc]);
 
   const layout = useMemo(() => (doc ? detectChannelLayout(doc) : null), [doc]);
+  const isGray = layout ? !layout.hasColor : false;
 
   const displayPixels = useMemo(() => {
     if (!doc || !layout) return null;
@@ -181,6 +182,7 @@ export default function App() {
         open={levelsOpen}
         source={doc?.pixels ?? null}
         hasAlpha={hasAlpha}
+        isGray={isGray}
         onClose={handleCloseLevels}
         onPreview={setPreview}
         onApply={handleApplyLevels}

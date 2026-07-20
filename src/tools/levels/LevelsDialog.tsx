@@ -17,6 +17,7 @@ interface LevelsDialogProps {
   open: boolean;
   source: ImageData | null;
   hasAlpha: boolean;
+  isGray: boolean;
   onClose: () => void;
   onPreview: (preview: ImageData | null) => void;
   onApply: (next: ImageData | null) => void;
@@ -26,6 +27,7 @@ export function LevelsDialog({
   open,
   source,
   hasAlpha,
+  isGray,
   onClose,
   onPreview,
   onApply,
@@ -48,9 +50,11 @@ export function LevelsDialog({
     [source],
   );
 
-  const channelOptions = hasAlpha
-    ? CHANNEL_OPTIONS
-    : CHANNEL_OPTIONS.filter((o) => o.key !== 'alpha');
+  const channelOptions = CHANNEL_OPTIONS.filter((o) => {
+    if (o.key === 'alpha') return hasAlpha;
+    if (o.key === 'red' || o.key === 'green' || o.key === 'blue') return !isGray;
+    return true;
+  }).map((o) => (isGray && o.key === 'master' ? { ...o, label: 'Gray' } : o));
 
   const bins = histograms ? selectHistogram(histograms, channel) : null;
   const params = byChannel[channel];
